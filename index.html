@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Courses & Menus</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: center;
+            background: #fff;
+            border-bottom: 1px solid #e0e6ed;
+            overflow-x: auto;
+        }
+        
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #64748b;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .nav-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .nav-btn:hover {
+            background: #f8fafc;
+        }
+        
+        .screen {
+            display: none;
+            padding: 2rem;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .btn-danger {
+            background: #e53e3e;
+        }
+        
+        .btn-danger:hover {
+            background: #c53030;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .recipe-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .recipe-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .week-planner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .day-card {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .day-card h4 {
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+        
+        .day-menu {
+            min-height: 60px;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 6px;
+            border: 2px dashed #cbd5e0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .day-menu:hover {
+            border-color: #667eea;
+        }
+        
+        .day-menu.has-recipe {
+            border: 2px solid #48bb78;
+            background: #f0fff4;
+        }
+        
+        .shopping-list {
+            list-style: none;
+        }
+        
+        .shopping-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .shopping-item input[type="checkbox"] {
+            margin-right: 1rem;
+            transform: scale(1.2);
+        }
+        
+        .shopping-item.checked {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        .inspiration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .ingredient-tag {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .ingredient-tag:hover {
+            border-color: #667eea;
+        }
+        
+        .ingredient-tag.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .ingredient-tag input {
+            margin-right: 0.5rem;
+        }
+        
+        .recipe-suggestions {
+            display: none;
+        }
+        
+        .recipe-suggestions.visible {
+            display: block;
+        }
+        
+        .suggestion-item {
+            padding: 1rem;
+            background: #f0fff4;
+            border: 1px solid #68d391;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .nav {
+                flex-wrap: wrap;
+            }
+            
+            .nav-btn {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .screen {
+                padding: 1rem;
+            }
+            
+            .week-planner {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>🛒 Mes Courses & Menus</h1>
+            <p>Planifiez vos repas et générez vos listes de courses</p>
+        </div>
+        
+        <nav class="nav">
+            <button class="nav-btn active" onclick="showScreen('recipes')">📖 Recettes</button>
+            <button class="nav-btn" onclick="showScreen('planner')">📅 Planification</button>
+            <button class="nav-btn" onclick="showScreen('shopping')">🛍️ Liste de courses</button>
+            <button class="nav-btn" onclick="showScreen('inspiration')">💡 Inspiration</button>
+        </nav>
+        
+        <!-- Écran Recettes -->
+        <div id="recipes" class="screen active">
+            <div class="card">
+                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2>Mes Recettes</h2>
+                    <button class="btn" onclick="showAddRecipeModal()">+ Ajouter une recette</button>
+                </div>
+                <div id="recipes-list">
+                    <!-- Les recettes seront ajoutées ici dynamiquement -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Écran Planification -->
+        <div id="planner" class="screen">
+            <div class="card">
+                <h2 style="margin-bottom: 1.5rem;">Planification de la semaine</h2>
+                <div class="week-planner" id="week-planner">
+                    <!-- Les jours seront générés dynamiquement -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Écran Liste de courses -->
+        <div id="shopping" class="screen">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2>Liste de courses</h2>
+                    <button class="btn" onclick="generateShoppingList()">🔄 Générer la liste</button>
+                </div>
+                <ul class="shopping-list" id="shopping-list">
+                    <!-- La liste sera générée automatiquement -->
+                </ul>
+                <div style="margin-top: 1rem;">
+                    <input type="text" id="manual-item" placeholder="Ajouter un article manuellement..." style="width: 70%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px;">
+                    <button class="btn" onclick="addManualItem()" style="width: 25%; margin-left: 1%;">Ajouter</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Écran Inspiration -->
+        <div id="inspiration" class="screen">
+            <div class="card">
+                <h2 style="margin-bottom: 1.5rem;">Inspiration courses</h2>
+                <p style="margin-bottom: 1rem; color: #64748b;">Cochez les ingrédients que vous voyez en magasin :</p>
+                <div class="inspiration-grid" id="inspiration-grid">
+                    <!-- Les ingrédients seront générés dynamiquement -->
+                </div>
+                <button class="btn" onclick="findRecipesByIngredients()">🔍 Trouver des recettes</button>
+                
+                <div id="recipe-suggestions" class="recipe-suggestions">
+                    <h3 style="margin: 2rem 0 1rem 0;">Suggestions de recettes :</h3>
+                    <div id="suggestions-list"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal pour ajouter/modifier une recette -->
+        <div id="recipe-modal" class="modal">
+            <div class="modal-content">
+                <h3 id="modal-title">Ajouter une recette</h3>
+                <form id="recipe-form">
+                    <div class="form-group">
+                        <label for="recipe-name">Nom de la recette :</label>
+                        <input type="text" id="recipe-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-ingredients">Ingrédients (un par ligne) :</label>
+                        <textarea id="recipe-ingredients" required placeholder="Ex:&#10;2 oeufs&#10;200g farine&#10;1 litre lait"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-instructions">Instructions :</label>
+                        <textarea id="recipe-instructions" required></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                        <button type="submit" class="btn">Sauvegarder</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Modal pour sélectionner une recette pour un jour -->
+        <div id="day-modal" class="modal">
+            <div class="modal-content">
+                <h3>Choisir une recette pour <span id="selected-day"></span></h3>
+                <div id="recipe-selector" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Les recettes seront listées ici -->
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                    <button type="button" class="btn btn-danger" onclick="removeRecipeFromDay()">Enlever recette</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let recipes = JSON.parse(localStorage.getItem('recipes') || '[]');
+        let weekMenu = JSON.parse(localStorage.getItem('weekMenu') || '{}');
+        let shoppingList = JSON.parse(localStorage.getItem('shoppingList') || '[]');
+        let currentEditingRecipe = null;
+        let currentSelectedDay = null;
+        
+        const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+        
+        // Ingrédients communs pour l'inspiration
+        const commonIngredients = [
+            'Tomates', 'Oignons', 'Ail', 'Carottes', 'Pommes de terre', 'Courgettes',
+            'Poivrons', 'Champignons', 'Épinards', 'Salade', 'Concombre', 'Avocats',
+            'Poulet', 'Boeuf', 'Porc', 'Poisson', 'Crevettes', 'Oeufs',
+            'Pâtes', 'Riz', 'Quinoa', 'Pain', 'Farine', 'Lentilles',
+            'Fromage', 'Yaourt', 'Crème', 'Beurre', 'Lait', 'Parmesan',
+            'Citrons', 'Oranges', 'Pommes', 'Bananes', 'Fraises', 'Tomates cerises'
+        ];
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            displayRecipes();
+            generateWeekPlanner();
+            generateInspirationGrid();
+            generateShoppingList();
+        });
+        
+        // Gestion de la navigation
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(screenName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        // Gestion des recettes
+        function displayRecipes() {
+            const container = document.getElementById('recipes-list');
+            if (recipes.length === 0) {
+                container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">Aucune recette ajoutée. Cliquez sur "Ajouter une recette" pour commencer.</p>';
+                return;
+            }
+            
+            container.innerHTML = recipes.map((recipe, index) => `
+                <div class="recipe-item">
+                    <div>
+                        <h4>${recipe.name}</h4>
+                        <p style="color: #64748b; font-size: 0.9rem;">${recipe.ingredients.split('\n').length} ingrédients</p>
+                    </div>
+                    <div class="recipe-actions">
+                        <button class="btn btn-secondary" onclick="editRecipe(${index})">Modifier</button>
+                        <button class="btn btn-danger" onclick="deleteRecipe(${index})">Supprimer</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function showAddRecipeModal() {
+            currentEditingRecipe = null;
+            document.getElementById('modal-title').textContent = 'Ajouter une recette';
+            document.getElementById('recipe-form').reset();
+            document.getElementById('recipe-modal').style.display = 'block';
+        }
+        
+        function editRecipe(index) {
+            currentEditingRecipe = index;
+            const recipe = recipes[index];
+            document.getElementById('modal-title').textContent = 'Modifier la recette';
+            document.getElementById('recipe-name').value = recipe.name;
+            document.getElementById('recipe-ingredients').value = recipe.ingredients;
+            document.getElementById('recipe-instructions').value = recipe.instructions;
+            document.getElementById('recipe-modal').style.display = 'block';
+        }
+        
+        function deleteRecipe(index) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette recette ?')) {
+                recipes.splice(index, 1);
+                saveData();
+                displayRecipes();
+                generateWeekPlanner();
+            }
+        }
+        
+        document.getElementById('recipe-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const recipe = {
+                name: document.getElementById('recipe-name').value.trim(),
+                ingredients: document.getElementById('recipe-ingredients').value.trim(),
+                instructions: document.getElementById('recipe-instructions').value.trim()
+            };
+            
+            if (currentEditingRecipe !== null) {
+                recipes[currentEditingRecipe] = recipe;
+            } else {
+                recipes.push(recipe);
+            }
+            
+            saveData();
+            displayRecipes();
+            generateInspirationGrid();
+            closeModal();
+        });
+        
+        // Gestion de la planification
+        function generateWeekPlanner() {
+            const container = document.getElementById('week-planner');
+            container.innerHTML = days.map(day => `
+                <div class="day-card">
+                    <h4>${day}</h4>
+                    <div class="day-menu ${weekMenu[day] ? 'has-recipe' : ''}" onclick="selectRecipeForDay('${day}')">
+                        ${weekMenu[day] ? `<strong>${weekMenu[day]}</strong>` : '<span style="color: #a0aec0;">Cliquer pour choisir</span>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function selectRecipeForDay(day) {
+            currentSelectedDay = day;
+            document.getElementById('selected-day').textContent = day.toLowerCase();
+            
+            const selector = document.getElementById('recipe-selector');
+            if (recipes.length === 0) {
+                selector.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">Aucune recette disponible. Ajoutez des recettes d\'abord.</p>';
+            } else {
+                selector.innerHTML = recipes.map((recipe, index) => `
+                    <div class="recipe-item" style="cursor: pointer;" onclick="assignRecipeToDay(${index})">
+                        <div>
+                            <h4>${recipe.name}</h4>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('day-modal').style.display = 'block';
+        }
+        
+        function assignRecipeToDay(recipeIndex) {
+            weekMenu[currentSelectedDay] = recipes[recipeIndex].name;
+            saveData();
+            generateWeekPlanner();
+            closeModal();
+        }
+        
+        function removeRecipeFromDay() {
+            if (currentSelectedDay && weekMenu[currentSelectedDay]) {
+                delete weekMenu[currentSelectedDay];
+                saveData();
+                generateWeekPlanner();
+                closeModal();
+            }
+        }
+        
+        // Gestion de la liste de courses
+        function generateShoppingList() {
+            const ingredients = new Set();
+            
+            // Récupérer les ingrédients des recettes de la semaine
+            Object.values(weekMenu).forEach(recipeName => {
+                const recipe = recipes.find(r => r.name === recipeName);
+                if (recipe) {
+                    recipe.ingredients.split('\n').forEach(ingredient => {
+                        if (ingredient.trim()) {
+                            ingredients.add(ingredient.trim());
+                        }
+                    });
+                }
+            });
+            
+            // Ajouter les articles ajoutés manuellement qui n'ont pas été cochés
+            shoppingList.forEach(item => {
+                if (!item.checked) {
+                    ingredients.add(item.name);
+                }
+            });
+            
+            // Mettre à jour la liste de courses
+            shoppingList = Array.from(ingredients).map(ingredient => {
+                const existing = shoppingList.find(item => item.name === ingredient);
+                return existing || { name: ingredient, checked: false };
+            });
+            
+            displayShoppingList();
+            saveData();
+        }
+        
+        function displayShoppingList() {
+            const container = document.getElementById('shopping-list');
+            if (shoppingList.length === 0) {
+                container.innerHTML = '<p style="color: #64748b; text-align: center; padding: 2rem;">Aucun article dans la liste. Planifiez vos menus puis cliquez sur "Générer la liste".</p>';
+                return;
+            }
+            
+            container.innerHTML = shoppingList.map((item, index) => `
+                <li class="shopping-item ${item.checked ? 'checked' : ''}">
+                    <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleShoppingItem(${index})">
+                    <span>${item.name}</span>
+                </li>
+            `).join('');
+        }
+        
+        function toggleShoppingItem(index) {
+            shoppingList[index].checked = !shoppingList[index].checked;
+            displayShoppingList();
+            saveData();
+        }
+        
+        function addManualItem() {
+            const input = document.getElementById('manual-item');
+            const itemName = input.value.trim();
+            
+            if (itemName && !shoppingList.find(item => item.name === itemName)) {
+                shoppingList.push({ name: itemName, checked: false });
+                input.value = '';
+                displayShoppingList();
+                saveData();
+            }
+        }
+        
+        // Gestion de l'inspiration
+        function generateInspirationGrid() {
+            // Récupérer tous les ingrédients uniques des recettes
+            const recipeIngredients = new Set();
+            recipes.forEach(recipe => {
+                recipe.ingredients.split('\n').forEach(ingredient => {
+                    if (ingredient.trim()) {
+                        // Nettoyer l'ingrédient (enlever quantités, etc.)
+                        const cleanIngredient = ingredient.trim().replace(/^\d+\s*(g|kg|ml|l|c\.à\.s|c\.à\.c)?\s*/i, '');
+                        recipeIngredients.add(cleanIngredient);
+                    }
+                });
+            });
+            
+            // Combiner avec les ingrédients communs
+            const allIngredients = [...new Set([...commonIngredients, ...recipeIngredients])].sort();
+            
+            const container = document.getElementById('inspiration-grid');
+            container.innerHTML = allIngredients.map(ingredient => `
+                <label class="ingredient-tag">
+                    <input type="checkbox" name="inspiration-ingredient" value="${ingredient}">
+                    <span>${ingredient}</span>
+                </label>
+            `).join('');
+            
+            // Gérer la sélection visuelle
+            container.addEventListener('change', function(e) {
+                if (e.target.type === 'checkbox') {
+                    const tag = e.target.closest('.ingredient-tag');
+                    if (e.target.checked) {
+                        tag.classList.add('selected');
+                    } else {
+                        tag.classList.remove('selected');
+                    }
+                }
+            });
+        }
+        
+        function findRecipesByIngredients() {
+            const selectedIngredients = Array.from(document.querySelectorAll('input[name="inspiration-ingredient"]:checked'))
+                .map(checkbox => checkbox.value.toLowerCase());
+            
+            if (selectedIngredients.length === 0) {
+                alert('Veuillez sélectionner au moins un ingrédient.');
+                return;
+            }
+            
+            const matchingRecipes = recipes.filter(recipe => {
+                const recipeIngredients = recipe.ingredients.toLowerCase();
+                return selectedIngredients.some(ingredient => 
+                    recipeIngredients.includes(ingredient.toLowerCase())
+                );
+            });
+            
+            const suggestionsContainer = document.getElementById('suggestions-list');
+            const suggestionsSection = document.getElementById('recipe-suggestions');
+            
+            if (matchingRecipes.length === 0) {
+                suggestionsContainer.innerHTML = '<p style="color: #64748b; text-align: center; padding: 1rem;">Aucune recette trouvée avec ces ingrédients.</p>';
+            } else {
+                suggestionsContainer.innerHTML = matchingRecipes.map(recipe => `
+                    <div class="suggestion-item">
+                        <h4>${recipe.name}</h4>
+                        <p style="color: #4a5568; font-size: 0.9rem; margin-top: 0.5rem;">
+                            Ingrédients : ${recipe.ingredients.split('\n').slice(0, 3).join(', ')}${recipe.ingredients.split('\n').length > 3 ? '...' : ''}
+                        </p>
+                    </div>
+                `).join('');
+            }
+            
+            suggestionsSection.classList.add('visible');
+        }
+        
+        // Gestion des modales
+        function closeModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+        
+        // Gestion du stockage
+        function saveData() {
+            localStorage.setItem('recipes', JSON.stringify(recipes));
+            localStorage.setItem('weekMenu', JSON.stringify(weekMenu));
+            localStorage.setItem('shoppingList', JSON.stringify(shoppingList));
+        }
+        
+        // Fermer les modales en cliquant en dehors
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                closeModal();
+            }
+        });
+        
+        // Permettre d'ajouter un article avec Entrée
+        document.getElementById('manual-item').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addManualItem();
+            }
+        });
+    </script>
+</body>
+</html>
