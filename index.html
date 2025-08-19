@@ -85,7 +85,7 @@
             alert('Recettes exportées ! Le fichier a été téléchargé.');
         }
         
-        // Données des recettes bébé
+        // Données des recettes bébé pour import additionnel
         const babyRecipes = [
             {
                 name: "Poireaux + riz + escalope de poulet (7 mois)",
@@ -578,8 +578,77 @@
     </div>
 
     <script>
+        // Données des recettes bébé par défaut
+        const defaultBabyRecipes = [
+            {
+                name: "Poireaux + riz + escalope de poulet (7 mois)",
+                ingredients: "280g blancs de poireaux\n60g riz complet (pesé cru)\n20g escalope de poulet\n2 cuillères d'huile de tournesol\n1 pincée de thym séché\n4 abricots (goûter)\n2 prunes (goûter)",
+                instructions: "Cuire les poireaux à la vapeur 15-18 min. Cuire le riz selon instructions. Cuire l'escalope de poulet 8-10 min à la vapeur. Mixer ensemble avec l'huile et le thym. Goûter : compote abricot-prune."
+            },
+            {
+                name: "Pak-choï + riz jasmin + porc (7 mois - chinois)",
+                ingredients: "280g pak-choï (bok choy)\n60g riz jasmin (pesé cru)\n20g filet de porc\n2 cuillères d'huile de tournesol\n1 pincée de gingembre en poudre\n2 pommes (goûter)\n3 litchis frais (goûter)",
+                instructions: "Cuire le pak-choï à la vapeur 8-10 min (tiges d'abord, feuilles après). Cuire le riz jasmin. Cuire le filet de porc 10-12 min à la vapeur. Mixer avec huile et gingembre. Goûter : compote pomme-litchi."
+            },
+            {
+                name: "Courge + nouilles de riz + crevettes (7 mois - chinois)",
+                ingredients: "280g courge butternut\n50g nouilles de riz (pesées crues)\n20g crevettes décortiquées\n2 cuillères d'huile de sésame\n1 pincée de coriandre fraîche\n2 poires (goûter)\n4 longanes frais (goûter)",
+                instructions: "Cuire la courge butternut à la vapeur 20-25 min. Cuire les nouilles de riz 5-8 min à l'eau. Réchauffer les crevettes 2 min. Mixer avec huile de sésame et coriandre. Goûter : compote poire-longane."
+            },
+            {
+                name: "Épinards chinois + riz gluant + poisson blanc (7 mois)",
+                ingredients: "280g épinards chinois ou classiques\n60g riz rond (pesé cru)\n20g dos de cabillaud\n2 cuillères d'huile de tournesol\n2 pommes (goûter)\n1 kaki bien mûr (goûter)",
+                instructions: "Cuire les épinards à la vapeur 5-8 min. Cuire le riz rond. Cuire le cabillaud 8-10 min à la vapeur. Mixer avec l'huile. Goûter : compote pomme-kaki."
+            },
+            {
+                name: "Choux chinois + millet + escalope de poulet (7 mois)",
+                ingredients: "280g chou chinois (pe-tsaï)\n60g millet (pesé cru)\n20g escalope de poulet\n2 cuillères d'huile de tournesol\n2 pêches (goûter)\n3 jujubes frais ou dattes (goûter)",
+                instructions: "Cuire le chou chinois à la vapeur 10-12 min. Cuire le millet 20-25 min à l'eau. Cuire l'escalope de poulet 8-10 min à la vapeur. Mixer avec l'huile. Goûter : compote pêche-jujube."
+            },
+            {
+                name: "Radis blanc + congee + veau (7 mois - chinois)",
+                ingredients: "280g radis blanc (daikon)\n60g riz pour congee (pesé cru)\n20g escalope de veau\n2 cuillères d'huile de tournesol\n2 pommes (goûter)\n1 poire asiatique nashi (goûter)",
+                instructions: "Cuire le radis blanc à la vapeur 15-18 min. Faire le congee : cuire le riz avec 6-8 fois son volume d'eau 30-40 min à feu doux. Cuire le veau 8-10 min à la vapeur. Mixer avec l'huile. Goûter : compote pomme-poire asiatique."
+            },
+            {
+                name: "Haricots verts + pommes de terre + veau (7 mois)",
+                ingredients: "280g haricots verts\n80g pommes de terre\n20g escalope de veau\n2 cuillères d'huile de tournesol\n1 pincée de romarin en poudre\n2 pommes (goûter)\n1 kiwi bien mûr (goûter)",
+                instructions: "Cuire les haricots verts et pommes de terre à la vapeur 15-25 min. Cuire l'escalope de veau 8-10 min à la vapeur. Mixer avec huile et romarin. Goûter : compote pomme-kiwi."
+            },
+            {
+                name: "Épinards + pâtes + dos de cabillaud (7 mois)",
+                ingredients: "280g épinards frais\n60g petites pâtes (pesées crues)\n20g dos de cabillaud\n2 cuillères d'huile de tournesol\n1 pincée de basilic séché\n2 poires (goûter)\n1/2 mangue bien mûre (goûter)",
+                instructions: "Cuire les épinards à la vapeur 5-8 min. Cuire les pâtes selon instructions. Cuire le cabillaud 8-10 min à la vapeur. Mixer avec huile et basilic. Goûter : compote poire-mangue."
+            },
+            {
+                name: "Brocolis + lentilles corail + jambon blanc (7 mois)",
+                ingredients: "280g brocolis\n50g lentilles corail (pesées crues)\n20g jambon blanc sans nitrites\n2 cuillères d'huile de tournesol\n1 pincée de curcuma\n150g fraises (goûter)\n1 pomme (goûter)",
+                instructions: "Cuire les brocolis à la vapeur 15-18 min. Cuire les lentilles corail 15-20 min à l'eau. Réchauffer le jambon 2-3 min. Mixer avec huile et curcuma. Goûter : compote fraise-pomme."
+            },
+            {
+                name: "Courgettes + riz + colin (7 mois)",
+                ingredients: "280g courgettes\n60g riz (pesé cru)\n20g filet de colin\n2 cuillères d'huile de tournesol\n1 pincée d'origan séché\n150g mirabelles (goûter)\n1 pêche (goûter)",
+                instructions: "Cuire les courgettes à la vapeur 12-15 min. Cuire le riz selon instructions. Cuire le colin 8-10 min à la vapeur. Mixer avec huile et origan. Goûter : compote mirabelle-pêche."
+            },
+            {
+                name: "Brocolis + semoule + crevettes (7 mois)",
+                ingredients: "280g brocolis\n60g semoule fine (pesée crue)\n20g crevettes décortiquées cuites\n2 cuillères d'huile de tournesol\n1 pincée d'aneth séché\n2 pommes (goûter)\n100g raisin blanc (goûter)",
+                instructions: "Cuire les brocolis à la vapeur 15-18 min. Cuire la semoule selon instructions. Réchauffer les crevettes 2 min. Mixer avec huile et aneth. Goûter : compote pomme-raisin."
+            },
+            {
+                name: "Butternut + riz + saumon (7 mois)",
+                ingredients: "280g butternut\n60g riz basmati (pesé cru)\n20g pavé de saumon\n2 cuillères d'huile de tournesol\n1 pincée de coriandre en poudre\n2 poires (goûter)\n1 pomme (goûter)",
+                instructions: "Cuire le butternut à la vapeur 20-25 min. Cuire le riz basmati selon instructions. Cuire le saumon 8-10 min à la vapeur. Mixer avec huile et coriandre. Goûter : compote poire-pomme."
+            },
+            {
+                name: "Chou-fleur + polenta + œuf dur (7 mois)",
+                ingredients: "280g chou-fleur\n60g polenta (pesée crue)\n1 jaune d'œuf dur\n2 cuillères d'huile de tournesol\n1 pincée de paprika doux\n3 prunes (goûter)\n1 pomme (goûter)",
+                instructions: "Cuire le chou-fleur à la vapeur 15-18 min. Cuire la polenta selon instructions. Faire un œuf dur 10 min, prendre le jaune. Mixer avec huile et paprika. Goûter : compote prune-pomme."
+            }
+        ];
+
         // Variables globales
-        let recipes = JSON.parse(localStorage.getItem('recipes') || '[]');
+        let recipes = JSON.parse(localStorage.getItem('recipes') || JSON.stringify(defaultBabyRecipes));
         let weekMenu = JSON.parse(localStorage.getItem('weekMenu') || '{}');
         let shoppingList = JSON.parse(localStorage.getItem('shoppingList') || '[]');
         let currentEditingRecipe = null;
@@ -587,14 +656,21 @@
         
         const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
         
-        // Ingrédients communs pour l'inspiration
+        // Ingrédients pour l'inspiration (incluant les ingrédients bébé)
         const commonIngredients = [
-            'Tomates', 'Oignons', 'Ail', 'Carottes', 'Pommes de terre', 'Courgettes',
-            'Poivrons', 'Champignons', 'Épinards', 'Salade', 'Concombre', 'Avocats',
-            'Poulet', 'Boeuf', 'Porc', 'Poisson', 'Crevettes', 'Oeufs',
-            'Pâtes', 'Riz', 'Quinoa', 'Pain', 'Farine', 'Lentilles',
-            'Fromage', 'Yaourt', 'Crème', 'Beurre', 'Lait', 'Parmesan',
-            'Citrons', 'Oranges', 'Pommes', 'Bananes', 'Fraises', 'Tomates cerises'
+            // Légumes bébé
+            'Poireaux', 'Pak-choï', 'Courge butternut', 'Épinards', 'Chou chinois', 'Radis blanc', 'Haricots verts',
+            'Brocolis', 'Courgettes', 'Chou-fleur',
+            // Féculents bébé
+            'Riz complet', 'Riz jasmin', 'Nouilles de riz', 'Riz rond', 'Millet', 'Pommes de terre', 'Pâtes', 'Lentilles corail', 'Semoule', 'Riz basmati', 'Polenta',
+            // Protéines bébé
+            'Escalope de poulet', 'Filet de porc', 'Crevettes', 'Dos de cabillaud', 'Escalope de veau', 'Jambon blanc', 'Filet de colin', 'Saumon', 'Œufs',
+            // Fruits bébé
+            'Abricots', 'Prunes', 'Pommes', 'Litchis', 'Poires', 'Longanes', 'Kaki', 'Pêches', 'Jujubes', 'Kiwi', 'Mangue', 'Fraises', 'Mirabelles', 'Raisin blanc',
+            // Ingrédients généraux
+            'Tomates', 'Oignons', 'Ail', 'Carottes', 'Champignons', 'Salade', 'Concombre', 'Avocats',
+            'Boeuf', 'Fromage', 'Yaourt', 'Crème', 'Beurre', 'Lait', 'Parmesan',
+            'Citrons', 'Oranges', 'Bananes', 'Tomates cerises'
         ];
         
         // Initialisation
