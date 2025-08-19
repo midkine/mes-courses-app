@@ -5,6 +5,174 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Courses & Menus</title>
     <style>
+        // Gestion de l'import/export
+        function showImportModal() {
+            document.getElementById('import-modal').style.display = 'block';
+        }
+        
+        function loadBabyRecipes() {
+            if (recipes.length > 0) {
+                if (!confirm('Cela va ajouter 13 nouvelles recettes. Continuer ?')) {
+                    return;
+                }
+            }
+            
+            recipes.push(...babyRecipes);
+            saveData();
+            displayRecipes();
+            generateInspirationGrid();
+            closeModal();
+            alert('13 recettes bébé importées avec succès ! 🍼');
+        }
+        
+        function importRecipes() {
+            const text = document.getElementById('import-text').value.trim();
+            if (!text) {
+                alert('Veuillez entrer des données à importer.');
+                return;
+            }
+            
+            try {
+                const importedRecipes = JSON.parse(text);
+                if (!Array.isArray(importedRecipes)) {
+                    throw new Error('Le format doit être un tableau de recettes');
+                }
+                
+                let validRecipes = 0;
+                importedRecipes.forEach(recipe => {
+                    if (recipe.name && recipe.ingredients && recipe.instructions) {
+                        recipes.push({
+                            name: recipe.name.trim(),
+                            ingredients: recipe.ingredients.trim(),
+                            instructions: recipe.instructions.trim()
+                        });
+                        validRecipes++;
+                    }
+                });
+                
+                if (validRecipes > 0) {
+                    saveData();
+                    displayRecipes();
+                    generateInspirationGrid();
+                    closeModal();
+                    alert(`${validRecipes} recette(s) importée(s) avec succès !`);
+                } else {
+                    alert('Aucune recette valide trouvée dans les données.');
+                }
+            } catch (error) {
+                alert('Erreur : Format JSON invalide. Vérifiez la syntaxe.');
+            }
+        }
+        
+        function exportRecipes() {
+            if (recipes.length === 0) {
+                alert('Aucune recette à exporter.');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(recipes, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'mes-recettes.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            alert('Recettes exportées ! Le fichier a été téléchargé.');
+        }
+        
+        // Données des recettes bébé
+        const babyRecipes = [
+            {
+                name: "Poireaux + riz + escalope de poulet (7 mois)",
+                ingredients: "280g blancs de poireaux\n60g riz complet (pesé cru)\n20g escalope de poulet\n2 cuillères d'huile de tournesol\n1 pincée de thym séché\n4 abricots (goûter)\n2 prunes (goûter)",
+                instructions: "Cuire les poireaux à la vapeur 15-18 min. Cuire le riz selon instructions. Cuire l'escalope de poulet 8-10 min à la vapeur. Mixer ensemble avec l'huile et le thym. Goûter : compote abricot-prune."
+            },
+            {
+                name: "Pak-choï + riz jasmin + porc (7 mois - chinois)",
+                ingredients: "280g pak-choï (bok choy)\n60g riz jasmin (pesé cru)\n20g filet de porc\n2 cuillères d'huile de tournesol\n1 pincée de gingembre en poudre\n2 pommes (goûter)\n3 litchis frais (goûter)",
+                instructions: "Cuire le pak-choï à la vapeur 8-10 min (tiges d'abord, feuilles après). Cuire le riz jasmin. Cuire le filet de porc 10-12 min à la vapeur. Mixer avec huile et gingembre. Goûter : compote pomme-litchi."
+            },
+            {
+                name: "Courge + nouilles de riz + crevettes (7 mois - chinois)",
+                ingredients: "280g courge butternut\n50g nouilles de riz (pesées crues)\n20g crevettes décortiquées\n2 cuillères d'huile de sésame\n1 pincée de coriandre fraîche\n2 poires (goûter)\n4 longanes frais (goûter)",
+                instructions: "Cuire la courge butternut à la vapeur 20-25 min. Cuire les nouilles de riz 5-8 min à l'eau. Réchauffer les crevettes 2 min. Mixer avec huile de sésame et coriandre. Goûter : compote poire-longane."
+            },
+            {
+                name: "Épinards chinois + riz gluant + poisson blanc (7 mois)",
+                ingredients: "280g épinards chinois ou classiques\n60g riz rond (pesé cru)\n20g dos de cabillaud\n2 cuillères d'huile de tournesol\n2 pommes (goûter)\n1 kaki bien mûr (goûter)",
+                instructions: "Cuire les épinards à la vapeur 5-8 min. Cuire le riz rond. Cuire le cabillaud 8-10 min à la vapeur. Mixer avec l'huile. Goûter : compote pomme-kaki."
+            },
+            {
+                name: "Choux chinois + millet + escalope de poulet (7 mois)",
+                ingredients: "280g chou chinois (pe-tsaï)\n60g millet (pesé cru)\n20g escalope de poulet\n2 cuillères d'huile de tournesol\n2 pêches (goûter)\n3 jujubes frais ou dattes (goûter)",
+                instructions: "Cuire le chou chinois à la vapeur 10-12 min. Cuire le millet 20-25 min à l'eau. Cuire l'escalope de poulet 8-10 min à la vapeur. Mixer avec l'huile. Goûter : compote pêche-jujube."
+            },
+            {
+                name: "Radis blanc + congee + veau (7 mois - chinois)",
+                ingredients: "280g radis blanc (daikon)\n60g riz pour congee (pesé cru)\n20g escalope de veau\n2 cuillères d'huile de tournesol\n2 pommes (goûter)\n1 poire asiatique nashi (goûter)",
+                instructions: "Cuire le radis blanc à la vapeur 15-18 min. Faire le congee : cuire le riz avec 6-8 fois son volume d'eau 30-40 min à feu doux. Cuire le veau 8-10 min à la vapeur. Mixer avec l'huile. Goûter : compote pomme-poire asiatique."
+            },
+            {
+                name: "Haricots verts + pommes de terre + veau (7 mois)",
+                ingredients: "280g haricots verts\n80g pommes de terre\n20g escalope de veau\n2 cuillères d'huile de tournesol\n1 pincée de romarin en poudre\n2 pommes (goûter)\n1 kiwi bien mûr (goûter)",
+                instructions: "Cuire les haricots verts et pommes de terre à la vapeur 15-25 min. Cuire l'escalope de veau 8-10 min à la vapeur. Mixer avec huile et romarin. Goûter : compote pomme-kiwi."
+            },
+            {
+                name: "Épinards + pâtes + dos de cabillaud (7 mois)",
+                ingredients: "280g épinards frais\n60g petites pâtes (pesées crues)\n20g dos de cabillaud\n2 cuillères d'huile de tournesol\n1 pincée de basilic séché\n2 poires (goûter)\n1/2 mangue bien mûre (goûter)",
+                instructions: "Cuire les épinards à la vapeur 5-8 min. Cuire les pâtes selon instructions. Cuire le cabillaud 8-10 min à la vapeur. Mixer avec huile et basilic. Goûter : compote poire-mangue."
+            },
+            {
+                name: "Brocolis + lentilles corail + jambon blanc (7 mois)",
+                ingredients: "280g brocolis\n50g lentilles corail (pesées crues)\n20g jambon blanc sans nitrites\n2 cuillères d'huile de tournesol\n1 pincée de curcuma\n150g fraises (goûter)\n1 pomme (goûter)",
+                instructions: "Cuire les brocolis à la vapeur 15-18 min. Cuire les lentilles corail 15-20 min à l'eau. Réchauffer le jambon 2-3 min. Mixer avec huile et curcuma. Goûter : compote fraise-pomme."
+            },
+            {
+                name: "Courgettes + riz + colin (7 mois)",
+                ingredients: "280g courgettes\n60g riz (pesé cru)\n20g filet de colin\n2 cuillères d'huile de tournesol\n1 pincée d'origan séché\n150g mirabelles (goûter)\n1 pêche (goûter)",
+                instructions: "Cuire les courgettes à la vapeur 12-15 min. Cuire le riz selon instructions. Cuire le colin 8-10 min à la vapeur. Mixer avec huile et origan. Goûter : compote mirabelle-pêche."
+            },
+            {
+                name: "Brocolis + semoule + crevettes (7 mois)",
+                ingredients: "280g brocolis\n60g semoule fine (pesée crue)\n20g crevettes décortiquées cuites\n2 cuillères d'huile de tournesol\n1 pincée d'aneth séché\n2 pommes (goûter)\n100g raisin blanc (goûter)",
+                instructions: "Cuire les brocolis à la vapeur 15-18 min. Cuire la semoule selon instructions. Réchauffer les crevettes 2 min. Mixer avec huile et aneth. Goûter : compote pomme-raisin."
+            },
+            {
+                name: "Butternut + riz + saumon (7 mois)",
+                ingredients: "280g butternut\n60g riz basmati (pesé cru)\n20g pavé de saumon\n2 cuillères d'huile de tournesol\n1 pincée de coriandre en poudre\n2 poires (goûter)\n1 pomme (goûter)",
+                instructions: "Cuire le butternut à la vapeur 20-25 min. Cuire le riz basmati selon instructions. Cuire le saumon 8-10 min à la vapeur. Mixer avec huile et coriandre. Goûter : compote poire-pomme."
+            },
+            {
+                name: "Chou-fleur + polenta + œuf dur (7 mois)",
+                ingredients: "280g chou-fleur\n60g polenta (pesée crue)\n1 jaune d'œuf dur\n2 cuillères d'huile de tournesol\n1 pincée de paprika doux\n3 prunes (goûter)\n1 pomme (goûter)",
+                instructions: "Cuire le chou-fleur à la vapeur 15-18 min. Cuire la polenta selon instructions. Faire un œuf dur 10 min, prendre le jaune. Mixer avec huile et paprika. Goûter : compote prune-pomme."
+            }
+        ];
+        
+        <!-- Modal pour importer des recettes -->
+        <div id="import-modal" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <h3>Importer des recettes</h3>
+                <div style="margin-bottom: 1rem;">
+                    <button class="btn btn-secondary" onclick="loadBabyRecipes()">📱 Charger les recettes bébé (7 mois)</button>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-top: 0.5rem;">13 préparations prêtes à utiliser avec inspirations chinoises</p>
+                </div>
+                <div class="form-group">
+                    <label for="import-text">Ou collez vos données JSON :</label>
+                    <textarea id="import-text" placeholder='[{"name": "Ma recette", "ingredients": "Ingrédient 1\nIngrédient 2", "instructions": "Instructions..."}]' style="min-height: 150px;"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                    <button type="button" class="btn" onclick="importRecipes()">Importer</button>
+                </div>
+            </div>
+        </div>
+        
         * {
             margin: 0;
             padding: 0;
@@ -311,9 +479,13 @@
         <!-- Écran Recettes -->
         <div id="recipes" class="screen active">
             <div class="card">
-                <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                     <h2>Mes Recettes</h2>
-                    <button class="btn" onclick="showAddRecipeModal()">+ Ajouter une recette</button>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <button class="btn" onclick="showAddRecipeModal()">+ Ajouter une recette</button>
+                        <button class="btn btn-secondary" onclick="showImportModal()">📥 Importer</button>
+                        <button class="btn btn-secondary" onclick="exportRecipes()">📤 Exporter</button>
+                    </div>
                 </div>
                 <div id="recipes-list">
                     <!-- Les recettes seront ajoutées ici dynamiquement -->
